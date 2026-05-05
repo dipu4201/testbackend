@@ -33,10 +33,12 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
+    if (!user) return res.status(401).json({ message: 'Invalid email or password' });
     if (!user.isActive) return res.status(401).json({ message: 'Account deactivated' });
+
+    const bcrypt = require('bcryptjs');
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
     res.json({
       _id: user._id,
@@ -51,7 +53,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 // Get profile
 router.get('/profile', protect, async (req, res) => {
   res.json(req.user);
