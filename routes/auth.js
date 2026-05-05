@@ -93,5 +93,24 @@ router.put('/users/:id/toggle', protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+// Setup admin
+router.get('/setup', async (req, res) => {
+  try {
+    await User.deleteMany({ email: 'admin@dsshop.com' });
+    const user = await User.create({
+      name: 'Admin',
+      email: 'admin@dsshop.com',
+      password: 'admin123',
+      phone: '01700000000',
+      isActive: true
+    });
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { role: 'admin' } }
+    );
+    res.json({ message: '✅ Done!' });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 module.exports = router;
