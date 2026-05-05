@@ -115,4 +115,22 @@ router.get('/setup', async (req, res) => {
     res.json({ error: err.message });
   }
 });
+// Test login route
+router.get('/test-login', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const user = await User.findOne({ email: 'admin@dsshop.com' });
+    if (!user) return res.json({ error: 'User not found' });
+    const isMatch = await bcrypt.compare('admin123', user.password);
+    res.json({
+      found: true,
+      role: user.role,
+      isActive: user.isActive,
+      passwordMatch: isMatch,
+      passwordHash: user.password.slice(0, 20) + '...'
+    });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 module.exports = router;
