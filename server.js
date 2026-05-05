@@ -38,17 +38,20 @@ app.use('/api/upload', require('./routes/upload'));
 app.get('/setup-admin', async (req, res) => {
   try {
     const User = require('./models/User');
+    const bcrypt = require('bcryptjs');
     await User.deleteMany({ email: 'admin@dsshop.com' });
-    const user = new User({
+    const hashed = await bcrypt.hash('admin123', 10);
+    await User.collection.insertOne({
       name: 'Admin',
       email: 'admin@dsshop.com',
-      password: 'admin123',
+      password: hashed,
       role: 'admin',
       phone: '01700000000',
-      isActive: true
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await user.save();
-    res.json({ message: '✅ Admin created!', email: 'admin@dsshop.com', password: 'admin123' });
+    res.json({ message: '✅ Admin created successfully!' });
   } catch (err) {
     res.json({ error: err.message });
   }
