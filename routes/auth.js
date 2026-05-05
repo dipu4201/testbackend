@@ -97,17 +97,18 @@ router.put('/users/:id/toggle', protect, adminOnly, async (req, res) => {
 router.get('/setup', async (req, res) => {
   try {
     await User.deleteMany({ email: 'admin@dsshop.com' });
-    const user = await User.create({
+    const bcrypt = require('bcryptjs');
+    const hashed = await bcrypt.hash('admin123', 10);
+    await User.collection.insertOne({
       name: 'Admin',
       email: 'admin@dsshop.com',
-      password: 'admin123',
+      password: hashed,
+      role: 'admin',
       phone: '01700000000',
-      isActive: true
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await User.updateOne(
-      { _id: user._id },
-      { $set: { role: 'admin' } }
-    );
     res.json({ message: '✅ Done!' });
   } catch (err) {
     res.json({ error: err.message });
