@@ -34,7 +34,25 @@ app.use('/api/slider', require('./routes/slider'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/upload', require('./routes/upload'));
-
+// Create admin route
+app.get('/setup-admin', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    await User.deleteMany({ email: 'admin@dsshop.com' });
+    const user = new User({
+      name: 'Admin',
+      email: 'admin@dsshop.com',
+      password: 'admin123',
+      role: 'admin',
+      phone: '01700000000',
+      isActive: true
+    });
+    await user.save();
+    res.json({ message: '✅ Admin created!', email: 'admin@dsshop.com', password: 'admin123' });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 // Health check
 app.get('/', (req, res) => {
   res.json({ message: '🚀 DS Shop API is running', status: 'ok' });
